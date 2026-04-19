@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  
+  --color-pitch: #050a0e;
+  --color-accent: #00ff88;
+  --color-accent-dim: rgba(0, 255, 136, 0.1);
+  --color-glass-bg: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-blur: blur(20px);
+}
+
+/* Optimization for Safari and iOS */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
+  }
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  background-color: var(--color-pitch);
+  background-image: radial-gradient(circle at 50% -20%, #0f3a2a 0%, #050a0e 80%);
+  background-attachment: fixed;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  /* Prevent blue highlight on tap in Safari */
+  -webkit-tap-highlight-color: transparent;
+  /* Improve font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fix for Safari elastic scroll background */
+html {
+  background-color: #050a0e;
+}
+
+/* Better touch targets for mobile */
+button, a, input, select {
+  min-height: 44px;
+}
+
+/* Responsive grid fixes for Safari */
+.grid {
+  display: grid;
+  display: -ms-grid;
+}
+
+h1, h2, h3, h4, .brand-font {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.glass-morphism {
+  background: var(--color-glass-bg);
+  backdrop-filter: var(--color-glass-blur);
+  border: 1px solid var(--color-glass-border);
+}
+
+.glass-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-glass-border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

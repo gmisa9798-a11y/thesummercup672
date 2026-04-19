@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "Team": {
+      "title": "Team",
+      "description": "A football team in the tournament",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "shortName": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "points": { "type": "number" },
+        "played": { "type": "number" },
+        "won": { "type": "number" },
+        "drawn": { "type": "number" },
+        "lost": { "type": "number" },
+        "goalsFor": { "type": "number" },
+        "goalsAgainst": { "type": "number" }
+      },
+      "required": ["name", "shortName"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "A football player in a team",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "teamId": { "type": "string" },
+        "name": { "type": "string" },
+        "number": { "type": "number" },
+        "position": { "type": "string", "enum": ["GK", "DEF", "MID", "FWD"] },
+        "goals": { "type": "number" },
+        "assists": { "type": "number" },
+        "yellowCards": { "type": "number" },
+        "redCards": { "type": "number" },
+        "photoUrl": { "type": "string" }
+      },
+      "required": ["teamId", "name", "position"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "A match between two teams",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "homeTeamId": { "type": "string" },
+        "awayTeamId": { "type": "string" },
+        "homeGoals": { "type": ["number", "null"] },
+        "awayGoals": { "type": ["number", "null"] },
+        "date": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["upcoming", "finished", "live"] }
+      },
+      "required": ["homeTeamId", "awayTeamId", "date", "status"]
+    }
+  },
+  "firestore": {
+    "/teams/{teamId}": {
+      "schema": "Team",
+      "description": "Collection of tournament teams"
+    },
+    "/players/{playerId}": {
+      "schema": "Player",
+      "description": "Collection of all players"
+    },
+    "/matches/{matchId}": {
+      "schema": "Match",
+      "description": "Collection of match schedules and results"
+    }
+  }
+}

@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: teams
+    // Document ID: auto-generated or manual string
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - shortName: string (required, 1-10 chars)
+    //   - logoUrl: string (optional, URL)
+    //   - points, played, won, drawn, lost, goalsFor, goalsAgainst: number (required)
+    //
+    // Collection: players
+    // Document ID: auto-generated
+    // Fields:
+    //   - teamId: string (required, existing team)
+    //   - name: string (required, 1-100 chars)
+    //   - number: number (required, 1-99)
+    //   - position: string (required, GK|DEF|MID|FWD)
+    //   - goals, assists, yellowCards, redCards: number (required)
+    //   - photoUrl: string (optional, URL)
+    //
+    // Collection: matches
+    // Document ID: auto-generated
+    // Fields:
+    //   - homeTeamId, awayTeamId: string (required)
+    //   - homeGoals, awayGoals: number (optional)
+    //   - date: string (required, ISO 8601)
+    //   - status: string (required, upcoming|finished|live)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+       return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.email == "gmisa9798@gmail.com";
+    }
+
+    function isValidUrl(url) {
+       return url is string;
+    }
+
+    function isValidEmail(email) {
+       return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Domain Validators
+    function isValidTeam(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.shortName is string && data.shortName.size() > 0 && data.shortName.size() <= 10 &&
+             (!('logoUrl' in data) || isValidUrl(data.logoUrl)) &&
+             data.points is number && data.played is number &&
+             data.won is number && data.drawn is number && data.lost is number &&
+             data.goalsFor is number && data.goalsAgainst is number;
+    }
+
+    function isValidPlayer(data) {
+      return data.teamId is string && data.name is string && data.name.size() > 0 && 
+             data.number is number && data.number >= 0 &&
+             data.position in ['GK', 'DEF', 'MID', 'FWD'] &&
+             data.goals is number && data.assists is number &&
+             data.yellowCards is number && data.redCards is number &&
+             (!('photoUrl' in data) || isValidUrl(data.photoUrl));
+    }
+
+    function isValidMatch(data) {
+      return data.homeTeamId is string && data.awayTeamId is string &&
+             data.date is string && data.status in ['upcoming', 'finished', 'live'] &&
+             (!('homeGoals' in data) || data.homeGoals is number || data.homeGoals == null) &&
+             (!('awayGoals' in data) || data.awayGoals is number || data.awayGoals == null);
+    }
+
+    // Collection Rules
+    match /teams/{teamId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidTeam(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /players/{playerId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidPlayer(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /matches/{matchId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidMatch(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow create, update: if isAuthenticated() && request.auth.uid == userId && 
+                             request.resource.data.email == request.auth.token.email;
+      allow delete: if isAdmin();
+    }
+  }
+}
